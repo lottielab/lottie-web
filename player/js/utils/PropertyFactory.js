@@ -79,38 +79,52 @@ function interpolateValue(frameNum, caching) {
         keyframeMetadata.__fnct = fnc;
       }
       perc = fnc((frameNum - keyTime) / (nextKeyTime - keyTime));
-      var distanceInLine = bezierData.segmentLength * perc;
 
-      var segmentPerc;
-      var addedLength = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastAddedLength : 0;
-      j = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastPoint : 0;
-      flag = true;
-      jLen = bezierData.points.length;
-      while (flag) {
-        addedLength += bezierData.points[j].partialLength;
-        if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
-          kLen = bezierData.points[j].point.length;
-          for (k = 0; k < kLen; k += 1) {
-            newValue[k] = bezierData.points[j].point[k];
+      if (perc > 1) {
+        const endPoint = nextKeyData.s || keyData.e;
+        const tangent = keyData.ti;
+        const ratio = (bezierData.segmentLength * (perc - 1)) / Math.hypot(tangent[0], tangent[1]);
+        newValue[0] = endPoint[0] - tangent[0] * ratio;
+        newValue[1] = endPoint[1] - tangent[1] * ratio;
+      } else if (perc < 0) {
+        const startPoint = keyData.s;
+        const tangent = keyData.to;
+        const ratio = (bezierData.segmentLength * perc) / Math.hypot(tangent[0], tangent[1]);
+        newValue[0] = startPoint[0] + tangent[0] * ratio;
+        newValue[1] = startPoint[1] + tangent[1] * ratio;
+      } else {
+        var distanceInLine = bezierData.segmentLength * perc;
+        var segmentPerc;
+        var addedLength = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastAddedLength : 0;
+        j = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastPoint : 0;
+        flag = true;
+        jLen = bezierData.points.length;
+        while (flag) {
+          addedLength += bezierData.points[j].partialLength;
+          if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
+            kLen = bezierData.points[j].point.length;
+            for (k = 0; k < kLen; k += 1) {
+              newValue[k] = bezierData.points[j].point[k];
+            }
+            break;
+          } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
+            segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
+            kLen = bezierData.points[j].point.length;
+            for (k = 0; k < kLen; k += 1) {
+              newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
+            }
+            break;
           }
-          break;
-        } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
-          segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
-          kLen = bezierData.points[j].point.length;
-          for (k = 0; k < kLen; k += 1) {
-            newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
+          if (j < jLen - 1) {
+            j += 1;
+          } else {
+            flag = false;
           }
-          break;
         }
-        if (j < jLen - 1) {
-          j += 1;
-        } else {
-          flag = false;
-        }
+        caching._lastPoint = j;
+        caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
+        caching._lastKeyframeIndex = i;
       }
-      caching._lastPoint = j;
-      caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
-      caching._lastKeyframeIndex = i;
     }
   } else {
     var outX;
