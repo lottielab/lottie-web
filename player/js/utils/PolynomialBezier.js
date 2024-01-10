@@ -55,6 +55,10 @@ function polynomialCoefficients(p0, p1, p2, p3) {
   ];
 }
 
+/**
+ * Returns the _normalized_ direction vector of the tangent of the curve when approaching
+ * the point from negative infinity, pointing outwards at cusps.
+ */
 function tangentDirection(p0, to, ti, p3, t) {
   const controlPoints = [p0, addVectors(p0, to), addVectors(p3, ti), p3];
   const firstSubdivision = deCasteljauSubdivision(controlPoints, t);
