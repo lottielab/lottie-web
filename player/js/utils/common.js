@@ -122,6 +122,22 @@ const createElementID = (function () {
   };
 }());
 
+function addVectors(a, b) {
+  const result = [];
+  for (let i = 0; i < a.length; i += 1) {
+    result[i] = a[i] + b[i];
+  }
+  return result;
+}
+
+function subtractVectors(a, b) {
+  const result = [];
+  for (let i = 0; i < a.length; i += 1) {
+    result[i] = a[i] - b[i];
+  }
+  return result;
+}
+
 function HSVtoRGB(h, s, v) {
   var r;
   var g;
@@ -269,6 +285,8 @@ export {
   BMConfigErrorEvent,
   BMAnimationConfigErrorEvent,
   createElementID,
+  addVectors,
+  subtractVectors,
   addSaturationToRGB,
   addBrightnessToRGB,
   addHueToRGB,

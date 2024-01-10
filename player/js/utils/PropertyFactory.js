@@ -1,5 +1,7 @@
 import {
+  addVectors,
   degToRads,
+  subtractVectors,
 } from './common';
 import {
   createTypedArray,
@@ -80,18 +82,29 @@ function interpolateValue(frameNum, caching) {
       }
       perc = fnc((frameNum - keyTime) / (nextKeyTime - keyTime));
 
+      const startPoint = keyData.s;
+      const endPoint = nextKeyData.s || keyData.e;
+
       if (perc > 1) {
-        const endPoint = nextKeyData.s || keyData.e;
-        const tangent = keyData.ti;
-        const ratio = (bezierData.segmentLength * (perc - 1)) / Math.hypot(tangent[0], tangent[1]);
-        newValue[0] = endPoint[0] - tangent[0] * ratio;
-        newValue[1] = endPoint[1] - tangent[1] * ratio;
+        let tangent = keyData.ti;
+        if (Math.hypot(...tangent) <= Number.EPSILON) {
+          tangent = subtractVectors(addVectors(startPoint, keyData.to), endPoint);
+        }
+
+        const ratio = (bezierData.segmentLength * (perc - 1)) / Math.hypot(...tangent);
+        for (let cnt = 0; cnt < endPoint.length; cnt += 1) {
+          newValue[cnt] = endPoint[cnt] - tangent[cnt] * ratio;
+        }
       } else if (perc < 0) {
-        const startPoint = keyData.s;
-        const tangent = keyData.to;
-        const ratio = (bezierData.segmentLength * perc) / Math.hypot(tangent[0], tangent[1]);
-        newValue[0] = startPoint[0] + tangent[0] * ratio;
-        newValue[1] = startPoint[1] + tangent[1] * ratio;
+        let tangent = keyData.to;
+        if (Math.hypot(...tangent) <= Number.EPSILON) {
+          tangent = subtractVectors(addVectors(endPoint, keyData.ti), startPoint);
+        }
+
+        const ratio = (bezierData.segmentLength * perc) / Math.hypot(...tangent);
+        for (let cnt = 0; cnt < startPoint.length; cnt += 1) {
+          newValue[cnt] = startPoint[cnt] + tangent[cnt] * ratio;
+        }
       } else {
         var distanceInLine = bezierData.segmentLength * perc;
         var segmentPerc;
