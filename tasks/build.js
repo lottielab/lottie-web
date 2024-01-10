@@ -738,7 +738,17 @@ function buildVersions(scripts) {
 			fileName: 'lottie_light_html.min.js',
 			build: 'html_light',
 			process: uglifyCode
-		}];
+		},
+        {
+            fileName: 'lottie_lottielab.js',
+            build: 'lottielab',
+            process: noop
+        },
+        {
+            fileName: 'lottie_lottielab.min.js',
+            build: 'lottielab',
+            process: uglifyCode
+        }];
 
 		if (buildReducedVersion) {
 			versions = versions.splice(0,1);
