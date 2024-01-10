@@ -69,7 +69,7 @@ function tangentDirection(p0, to, ti, p3, t) {
   if (length1 > Number.EPSILON) return tangent1.map((v) => v / length1);
 
   const tangent2 = subtractVectors(firstSubdivision[2], firstSubdivision[0]);
-  const length2 = Math.hypot(tangent2);
+  const length2 = Math.hypot(...tangent2);
   if (length2 > Number.EPSILON) return tangent2.map((v) => v / length2);
 
   // Here we have to try both cases, as any two of the three points may coincide without the
