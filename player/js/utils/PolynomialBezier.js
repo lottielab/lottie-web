@@ -15,11 +15,11 @@ function lerpPoint(p0, p1, amount) {
 }
 
 function addVectors(a, b) {
-  return a.map((_, i) => a[i] + (b[i] || 0));
+  return a.map((v, i) => v + (b[i] || 0));
 }
 
 function subtractVectors(a, b) {
-  return a.map((_, i) => a[i] - (b[i] || 0));
+  return a.map((v, i) => v - (b[i] || 0));
 }
 
 function normalizeVector(a) {
