@@ -126,6 +126,19 @@ const builds = [
     esm: false,
     skipTerser: true,
   },
+  {
+    input: 'player/js/modules/lottielab.js',
+    dest: `${destinationBuildFolder}`,
+    file: 'lottie_lottielab.min.js',
+    esm: true,
+  },
+  {
+    input: 'player/js/modules/lottielab.js',
+    dest: `${destinationBuildFolder}`,
+    file: 'lottie_lottielab.js',
+    esm: false,
+    skipTerser: true,
+  },
 ];
 
 const plugins = [
