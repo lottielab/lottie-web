@@ -1,7 +1,5 @@
 import {
-  addVectors,
   degToRads,
-  subtractVectors,
 } from './common';
 import {
   createTypedArray,
@@ -11,6 +9,7 @@ import {
   initialDefaultFrame,
 } from '../main';
 import bez from './bez';
+import { tangentDirection } from './PolynomialBezier';
 
 var initFrame = initialDefaultFrame;
 var mathAbs = Math.abs;
@@ -86,22 +85,14 @@ function interpolateValue(frameNum, caching) {
       const endPoint = nextKeyData.s || keyData.e;
 
       if (perc > 1) {
-        let tangent = keyData.ti;
-        if (Math.hypot(...tangent) <= Number.EPSILON) {
-          tangent = subtractVectors(addVectors(startPoint, keyData.to), endPoint);
-        }
-
-        const ratio = (bezierData.segmentLength * (perc - 1)) / Math.hypot(...tangent);
+        const tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 1);
+        const ratio = bezierData.segmentLength * (perc - 1);
         for (let cnt = 0; cnt < endPoint.length; cnt += 1) {
-          newValue[cnt] = endPoint[cnt] - tangent[cnt] * ratio;
+          newValue[cnt] = endPoint[cnt] + tangent[cnt] * ratio;
         }
       } else if (perc < 0) {
-        let tangent = keyData.to;
-        if (Math.hypot(...tangent) <= Number.EPSILON) {
-          tangent = subtractVectors(addVectors(endPoint, keyData.ti), startPoint);
-        }
-
-        const ratio = (bezierData.segmentLength * perc) / Math.hypot(...tangent);
+        const tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 0);
+        const ratio = bezierData.segmentLength * perc;
         for (let cnt = 0; cnt < startPoint.length; cnt += 1) {
           newValue[cnt] = startPoint[cnt] + tangent[cnt] * ratio;
         }
