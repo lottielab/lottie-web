@@ -9,6 +9,7 @@ import {
   initialDefaultFrame,
 } from '../main';
 import bez from './bez';
+import { tangentDirection } from './PolynomialBezier';
 
 var initFrame = initialDefaultFrame;
 var mathAbs = Math.abs;
@@ -79,38 +80,55 @@ function interpolateValue(frameNum, caching) {
         keyframeMetadata.__fnct = fnc;
       }
       perc = fnc((frameNum - keyTime) / (nextKeyTime - keyTime));
-      var distanceInLine = bezierData.segmentLength * perc;
 
-      var segmentPerc;
-      var addedLength = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastAddedLength : 0;
-      j = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastPoint : 0;
-      flag = true;
-      jLen = bezierData.points.length;
-      while (flag) {
-        addedLength += bezierData.points[j].partialLength;
-        if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
-          kLen = bezierData.points[j].point.length;
-          for (k = 0; k < kLen; k += 1) {
-            newValue[k] = bezierData.points[j].point[k];
-          }
-          break;
-        } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
-          segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
-          kLen = bezierData.points[j].point.length;
-          for (k = 0; k < kLen; k += 1) {
-            newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
-          }
-          break;
+      const startPoint = keyData.s;
+      const endPoint = nextKeyData.s || keyData.e;
+
+      if (perc > 1) {
+        const tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 1);
+        const ratio = bezierData.segmentLength * (perc - 1);
+        for (let cnt = 0; cnt < endPoint.length; cnt += 1) {
+          newValue[cnt] = endPoint[cnt] + tangent[cnt] * ratio;
         }
-        if (j < jLen - 1) {
-          j += 1;
-        } else {
-          flag = false;
+      } else if (perc < 0) {
+        const tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 0);
+        const ratio = bezierData.segmentLength * perc;
+        for (let cnt = 0; cnt < startPoint.length; cnt += 1) {
+          newValue[cnt] = startPoint[cnt] + tangent[cnt] * ratio;
         }
+      } else {
+        var distanceInLine = bezierData.segmentLength * perc;
+        var segmentPerc;
+        var addedLength = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastAddedLength : 0;
+        j = (caching.lastFrame < frameNum && caching._lastKeyframeIndex === i) ? caching._lastPoint : 0;
+        flag = true;
+        jLen = bezierData.points.length;
+        while (flag) {
+          addedLength += bezierData.points[j].partialLength;
+          if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
+            kLen = bezierData.points[j].point.length;
+            for (k = 0; k < kLen; k += 1) {
+              newValue[k] = bezierData.points[j].point[k];
+            }
+            break;
+          } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
+            segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
+            kLen = bezierData.points[j].point.length;
+            for (k = 0; k < kLen; k += 1) {
+              newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
+            }
+            break;
+          }
+          if (j < jLen - 1) {
+            j += 1;
+          } else {
+            flag = false;
+          }
+        }
+        caching._lastPoint = j;
+        caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
+        caching._lastKeyframeIndex = i;
       }
-      caching._lastPoint = j;
-      caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
-      caching._lastKeyframeIndex = i;
     }
   } else {
     var outX;
