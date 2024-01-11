@@ -175,7 +175,7 @@
     });
   }
 
-  function _typeof$3(obj) { "@babel/helpers - typeof"; return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$3(obj); }
+  function _typeof$3(o) { "@babel/helpers - typeof"; return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$3(o); }
   var subframeEnabled = true;
   var expressionsPlugin = null;
   var expressionsInterfaces = null;
@@ -448,7 +448,7 @@
     return document.createElementNS(svgNS, type);
   }
 
-  function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
+  function _typeof$2(o) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$2(o); }
   var dataManager = function () {
     var _counterId = 1;
     var processes = [];
@@ -1430,7 +1430,7 @@
     return '';
   }
 
-  function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
+  function _typeof$1(o) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$1(o); }
   var AnimationItem = function AnimationItem() {
     this._cbs = [];
     this.name = '';
@@ -2768,7 +2768,6 @@
         bezierSegmentPoints[i * 4 + 2] = math.round((u0u1u1 * pt1[i] + t0u1u1_3 * pt3[i] + t0t1u1_3 * pt4[i] + t0t1t1 * pt2[i]) * 1000) / 1000; // eslint-disable-line camelcase
         bezierSegmentPoints[i * 4 + 3] = math.round((u1u1u1 * pt1[i] + t1u1u1_3 * pt3[i] + t1t1u1_3 * pt4[i] + t1t1t1 * pt2[i]) * 1000) / 1000; // eslint-disable-line camelcase
       }
-
       return bezierSegmentPoints;
     }
     return {
@@ -2781,6 +2780,263 @@
     };
   }
   var bez = bezFunction();
+
+  function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+  function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+  function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+  function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+  function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+  function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+  function floatEqual(a, b) {
+    return Math.abs(a - b) * 100000 <= Math.min(Math.abs(a), Math.abs(b));
+  }
+  function floatZero(f) {
+    return Math.abs(f) <= 0.00001;
+  }
+  function lerp(p0, p1, amount) {
+    return p0 * (1 - amount) + p1 * amount;
+  }
+  function lerpPoint(p0, p1, amount) {
+    return [lerp(p0[0], p1[0], amount), lerp(p0[1], p1[1], amount)];
+  }
+  function addVectors(a, b) {
+    return a.map(function (v, i) {
+      return v + (b[i] || 0);
+    });
+  }
+  function subtractVectors(a, b) {
+    return a.map(function (v, i) {
+      return v - (b[i] || 0);
+    });
+  }
+  function normalizeVector(a) {
+    var length = Math.hypot.apply(Math, _toConsumableArray(a));
+    if (length > Number.EPSILON) {
+      return a.map(function (v) {
+        return v / length;
+      });
+    }
+    return a;
+  }
+  function quadRoots(a, b, c) {
+    // no root
+    if (a === 0) return [];
+    var s = b * b - 4 * a * c;
+    // Complex roots
+    if (s < 0) return [];
+    var singleRoot = -b / (2 * a);
+    // 1 root
+    if (s === 0) return [singleRoot];
+    var delta = Math.sqrt(s) / (2 * a);
+    // 2 roots
+    return [singleRoot - delta, singleRoot + delta];
+  }
+  function polynomialCoefficients(p0, p1, p2, p3) {
+    return [-p0 + 3 * p1 - 3 * p2 + p3, 3 * p0 - 6 * p1 + 3 * p2, -3 * p0 + 3 * p1, p0];
+  }
+
+  /**
+   * Returns the _normalized_ direction vector of the tangent of the curve when approaching
+   * the point from negative infinity, pointing outwards at cusps.
+   */
+  function tangentDirection(p0, to, ti, p3, t) {
+    var controlPoints = [p0, addVectors(p0, to), addVectors(p3, ti), p3];
+    var firstSubdivision = deCasteljauSubdivision(controlPoints, t);
+    var secondSubdivision = deCasteljauSubdivision(firstSubdivision, t);
+    var tangent1 = subtractVectors(secondSubdivision[1], secondSubdivision[0]);
+    var length1 = Math.hypot.apply(Math, _toConsumableArray(tangent1));
+    if (length1 > Number.EPSILON) return tangent1.map(function (v) {
+      return v / length1;
+    });
+    var tangent2 = subtractVectors(firstSubdivision[2], firstSubdivision[0]);
+    var length2 = Math.hypot.apply(Math, _toConsumableArray(tangent2));
+    if (length2 > Number.EPSILON) return tangent2.map(function (v) {
+      return v / length2;
+    });
+
+    // Here we have to try both cases, as any two of the three points may coincide without the
+    // curve being degenerate
+    var tangent3 = subtractVectors(firstSubdivision[1], firstSubdivision[0]);
+    var length3 = Math.hypot.apply(Math, _toConsumableArray(tangent3));
+    if (length3 > Number.EPSILON) return tangent3.map(function (v) {
+      return v / length3;
+    });
+    return normalizeVector(subtractVectors(controlPoints[3], controlPoints[0]));
+  }
+  function deCasteljauSubdivision(points, t) {
+    var result = [];
+    for (var i = 0; i < points.length - 1; i += 1) {
+      result.push(lerpPoint(points[i], points[i + 1], t));
+    }
+    return result;
+  }
+  function singlePoint(p) {
+    return new PolynomialBezier(p, p, p, p, false);
+  }
+  function PolynomialBezier(p0, p1, p2, p3, linearize) {
+    if (linearize && pointEqual(p0, p1)) {
+      p1 = lerpPoint(p0, p3, 1 / 3);
+    }
+    if (linearize && pointEqual(p2, p3)) {
+      p2 = lerpPoint(p0, p3, 2 / 3);
+    }
+    var coeffx = polynomialCoefficients(p0[0], p1[0], p2[0], p3[0]);
+    var coeffy = polynomialCoefficients(p0[1], p1[1], p2[1], p3[1]);
+    this.a = [coeffx[0], coeffy[0]];
+    this.b = [coeffx[1], coeffy[1]];
+    this.c = [coeffx[2], coeffy[2]];
+    this.d = [coeffx[3], coeffy[3]];
+    this.points = [p0, p1, p2, p3];
+  }
+  PolynomialBezier.prototype.point = function (t) {
+    return [((this.a[0] * t + this.b[0]) * t + this.c[0]) * t + this.d[0], ((this.a[1] * t + this.b[1]) * t + this.c[1]) * t + this.d[1]];
+  };
+  PolynomialBezier.prototype.derivative = function (t) {
+    return [(3 * t * this.a[0] + 2 * this.b[0]) * t + this.c[0], (3 * t * this.a[1] + 2 * this.b[1]) * t + this.c[1]];
+  };
+  PolynomialBezier.prototype.tangentAngle = function (t) {
+    var p = this.derivative(t);
+    return Math.atan2(p[1], p[0]);
+  };
+  PolynomialBezier.prototype.normalAngle = function (t) {
+    var p = this.derivative(t);
+    return Math.atan2(p[0], p[1]);
+  };
+  PolynomialBezier.prototype.inflectionPoints = function () {
+    var denom = this.a[1] * this.b[0] - this.a[0] * this.b[1];
+    if (floatZero(denom)) return [];
+    var tcusp = -0.5 * (this.a[1] * this.c[0] - this.a[0] * this.c[1]) / denom;
+    var square = tcusp * tcusp - 1 / 3 * (this.b[1] * this.c[0] - this.b[0] * this.c[1]) / denom;
+    if (square < 0) return [];
+    var root = Math.sqrt(square);
+    if (floatZero(root)) {
+      if (root > 0 && root < 1) return [tcusp];
+      return [];
+    }
+    return [tcusp - root, tcusp + root].filter(function (r) {
+      return r > 0 && r < 1;
+    });
+  };
+  PolynomialBezier.prototype.split = function (t) {
+    if (t <= 0) return [singlePoint(this.points[0]), this];
+    if (t >= 1) return [this, singlePoint(this.points[this.points.length - 1])];
+    var p10 = lerpPoint(this.points[0], this.points[1], t);
+    var p11 = lerpPoint(this.points[1], this.points[2], t);
+    var p12 = lerpPoint(this.points[2], this.points[3], t);
+    var p20 = lerpPoint(p10, p11, t);
+    var p21 = lerpPoint(p11, p12, t);
+    var p3 = lerpPoint(p20, p21, t);
+    return [new PolynomialBezier(this.points[0], p10, p20, p3, true), new PolynomialBezier(p3, p21, p12, this.points[3], true)];
+  };
+  function extrema(bez, comp) {
+    var min = bez.points[0][comp];
+    var max = bez.points[bez.points.length - 1][comp];
+    if (min > max) {
+      var e = max;
+      max = min;
+      min = e;
+    }
+    // Derivative roots to find min/max
+    var f = quadRoots(3 * bez.a[comp], 2 * bez.b[comp], bez.c[comp]);
+    for (var i = 0; i < f.length; i += 1) {
+      if (f[i] > 0 && f[i] < 1) {
+        var val = bez.point(f[i])[comp];
+        if (val < min) min = val;else if (val > max) max = val;
+      }
+    }
+    return {
+      min: min,
+      max: max
+    };
+  }
+  PolynomialBezier.prototype.bounds = function () {
+    return {
+      x: extrema(this, 0),
+      y: extrema(this, 1)
+    };
+  };
+  PolynomialBezier.prototype.boundingBox = function () {
+    var bounds = this.bounds();
+    return {
+      left: bounds.x.min,
+      right: bounds.x.max,
+      top: bounds.y.min,
+      bottom: bounds.y.max,
+      width: bounds.x.max - bounds.x.min,
+      height: bounds.y.max - bounds.y.min,
+      cx: (bounds.x.max + bounds.x.min) / 2,
+      cy: (bounds.y.max + bounds.y.min) / 2
+    };
+  };
+  function intersectData(bez, t1, t2) {
+    var box = bez.boundingBox();
+    return {
+      cx: box.cx,
+      cy: box.cy,
+      width: box.width,
+      height: box.height,
+      bez: bez,
+      t: (t1 + t2) / 2,
+      t1: t1,
+      t2: t2
+    };
+  }
+  function splitData(data) {
+    var split = data.bez.split(0.5);
+    return [intersectData(split[0], data.t1, data.t), intersectData(split[1], data.t, data.t2)];
+  }
+  function boxIntersect(b1, b2) {
+    return Math.abs(b1.cx - b2.cx) * 2 < b1.width + b2.width && Math.abs(b1.cy - b2.cy) * 2 < b1.height + b2.height;
+  }
+  function intersectsImpl(d1, d2, depth, tolerance, intersections, maxRecursion) {
+    if (!boxIntersect(d1, d2)) return;
+    if (depth >= maxRecursion || d1.width <= tolerance && d1.height <= tolerance && d2.width <= tolerance && d2.height <= tolerance) {
+      intersections.push([d1.t, d2.t]);
+      return;
+    }
+    var d1s = splitData(d1);
+    var d2s = splitData(d2);
+    intersectsImpl(d1s[0], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[0], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[1], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
+    intersectsImpl(d1s[1], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
+  }
+  PolynomialBezier.prototype.intersections = function (other, tolerance, maxRecursion) {
+    if (tolerance === undefined) tolerance = 2;
+    if (maxRecursion === undefined) maxRecursion = 7;
+    var intersections = [];
+    intersectsImpl(intersectData(this, 0, 1), intersectData(other, 0, 1), 0, tolerance, intersections, maxRecursion);
+    return intersections;
+  };
+  PolynomialBezier.shapeSegment = function (shapePath, index) {
+    var nextIndex = (index + 1) % shapePath.length();
+    return new PolynomialBezier(shapePath.v[index], shapePath.o[index], shapePath.i[nextIndex], shapePath.v[nextIndex], true);
+  };
+  PolynomialBezier.shapeSegmentInverted = function (shapePath, index) {
+    var nextIndex = (index + 1) % shapePath.length();
+    return new PolynomialBezier(shapePath.v[nextIndex], shapePath.i[nextIndex], shapePath.o[index], shapePath.v[index], true);
+  };
+  function crossProduct(a, b) {
+    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  }
+  function lineIntersection(start1, end1, start2, end2) {
+    var v1 = [start1[0], start1[1], 1];
+    var v2 = [end1[0], end1[1], 1];
+    var v3 = [start2[0], start2[1], 1];
+    var v4 = [end2[0], end2[1], 1];
+    var r = crossProduct(crossProduct(v1, v2), crossProduct(v3, v4));
+    if (floatZero(r[2])) return null;
+    return [r[0] / r[2], r[1] / r[2]];
+  }
+  function polarOffset(p, angle, length) {
+    return [p[0] + Math.cos(angle) * length, p[1] - Math.sin(angle) * length];
+  }
+  function pointDistance(p1, p2) {
+    return Math.hypot(p1[0] - p2[0], p1[1] - p2[1]);
+  }
+  function pointEqual(p1, p2) {
+    return floatEqual(p1[0], p2[0]) && floatEqual(p1[1], p2[1]);
+  }
 
   var initFrame = initialDefaultFrame;
   var mathAbs = Math.abs;
@@ -2848,37 +3104,53 @@
           keyframeMetadata.__fnct = fnc;
         }
         perc = fnc((frameNum - keyTime) / (nextKeyTime - keyTime));
-        var distanceInLine = bezierData.segmentLength * perc;
-        var segmentPerc;
-        var addedLength = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i ? caching._lastAddedLength : 0;
-        j = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i ? caching._lastPoint : 0;
-        flag = true;
-        jLen = bezierData.points.length;
-        while (flag) {
-          addedLength += bezierData.points[j].partialLength;
-          if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
-            kLen = bezierData.points[j].point.length;
-            for (k = 0; k < kLen; k += 1) {
-              newValue[k] = bezierData.points[j].point[k];
-            }
-            break;
-          } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
-            segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
-            kLen = bezierData.points[j].point.length;
-            for (k = 0; k < kLen; k += 1) {
-              newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
-            }
-            break;
+        var startPoint = keyData.s;
+        var endPoint = nextKeyData.s || keyData.e;
+        if (perc > 1) {
+          var tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 1);
+          var ratio = bezierData.segmentLength * (perc - 1);
+          for (var cnt = 0; cnt < endPoint.length; cnt += 1) {
+            newValue[cnt] = endPoint[cnt] + tangent[cnt] * ratio;
           }
-          if (j < jLen - 1) {
-            j += 1;
-          } else {
-            flag = false;
+        } else if (perc < 0) {
+          var _tangent = tangentDirection(keyData.s, keyData.to, keyData.ti, nextKeyData.s || keyData.e, 0);
+          var _ratio = bezierData.segmentLength * perc;
+          for (var _cnt = 0; _cnt < startPoint.length; _cnt += 1) {
+            newValue[_cnt] = startPoint[_cnt] + _tangent[_cnt] * _ratio;
           }
+        } else {
+          var distanceInLine = bezierData.segmentLength * perc;
+          var segmentPerc;
+          var addedLength = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i ? caching._lastAddedLength : 0;
+          j = caching.lastFrame < frameNum && caching._lastKeyframeIndex === i ? caching._lastPoint : 0;
+          flag = true;
+          jLen = bezierData.points.length;
+          while (flag) {
+            addedLength += bezierData.points[j].partialLength;
+            if (distanceInLine === 0 || perc === 0 || j === bezierData.points.length - 1) {
+              kLen = bezierData.points[j].point.length;
+              for (k = 0; k < kLen; k += 1) {
+                newValue[k] = bezierData.points[j].point[k];
+              }
+              break;
+            } else if (distanceInLine >= addedLength && distanceInLine < addedLength + bezierData.points[j + 1].partialLength) {
+              segmentPerc = (distanceInLine - addedLength) / bezierData.points[j + 1].partialLength;
+              kLen = bezierData.points[j].point.length;
+              for (k = 0; k < kLen; k += 1) {
+                newValue[k] = bezierData.points[j].point[k] + (bezierData.points[j + 1].point[k] - bezierData.points[j].point[k]) * segmentPerc;
+              }
+              break;
+            }
+            if (j < jLen - 1) {
+              j += 1;
+            } else {
+              flag = false;
+            }
+          }
+          caching._lastPoint = j;
+          caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
+          caching._lastKeyframeIndex = i;
         }
-        caching._lastPoint = j;
-        caching._lastAddedLength = addedLength - bezierData.points[j].partialLength;
-        caching._lastKeyframeIndex = i;
       }
     } else {
       var outX;
@@ -3545,7 +3817,6 @@
         this.interpolateShape(frameNum, this.pv, this._caching);
         /// /
       }
-
       this._caching.lastFrame = frameNum;
       return this.pv;
     }
@@ -4052,7 +4323,6 @@
       return this._t(mCos, mSin, 0, 0, -mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)._t(1, 0, 0, 0, _tan(ax), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)._t(mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
       // return this._t(mCos, mSin, -mSin, mCos, 0, 0)._t(1, 0, _tan(ax), 1, 0, 0)._t(mCos, -mSin, mSin, mCos, 0, 0);
     }
-
     function scale(sx, sy, sz) {
       if (!sz && sz !== 0) {
         sz = 1;
@@ -4187,7 +4457,6 @@
            y: x * me.b + y * me.d + me.f
            }; */
     }
-
     function applyToX(x, y, z) {
       return x * this.props[0] + y * this.props[4] + z * this.props[8] + this.props[12];
     }
@@ -4343,7 +4612,7 @@
     };
   }();
 
-  function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+  function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
   var lottie = {};
   var standalone = '__[STANDALONE]__';
   var animationData = '__[ANIMATIONDATA]__';
@@ -5527,202 +5796,6 @@
     }
   };
 
-  function floatEqual(a, b) {
-    return Math.abs(a - b) * 100000 <= Math.min(Math.abs(a), Math.abs(b));
-  }
-  function floatZero(f) {
-    return Math.abs(f) <= 0.00001;
-  }
-  function lerp(p0, p1, amount) {
-    return p0 * (1 - amount) + p1 * amount;
-  }
-  function lerpPoint(p0, p1, amount) {
-    return [lerp(p0[0], p1[0], amount), lerp(p0[1], p1[1], amount)];
-  }
-  function quadRoots(a, b, c) {
-    // no root
-    if (a === 0) return [];
-    var s = b * b - 4 * a * c;
-    // Complex roots
-    if (s < 0) return [];
-    var singleRoot = -b / (2 * a);
-    // 1 root
-    if (s === 0) return [singleRoot];
-    var delta = Math.sqrt(s) / (2 * a);
-    // 2 roots
-    return [singleRoot - delta, singleRoot + delta];
-  }
-  function polynomialCoefficients(p0, p1, p2, p3) {
-    return [-p0 + 3 * p1 - 3 * p2 + p3, 3 * p0 - 6 * p1 + 3 * p2, -3 * p0 + 3 * p1, p0];
-  }
-  function singlePoint(p) {
-    return new PolynomialBezier(p, p, p, p, false);
-  }
-  function PolynomialBezier(p0, p1, p2, p3, linearize) {
-    if (linearize && pointEqual(p0, p1)) {
-      p1 = lerpPoint(p0, p3, 1 / 3);
-    }
-    if (linearize && pointEqual(p2, p3)) {
-      p2 = lerpPoint(p0, p3, 2 / 3);
-    }
-    var coeffx = polynomialCoefficients(p0[0], p1[0], p2[0], p3[0]);
-    var coeffy = polynomialCoefficients(p0[1], p1[1], p2[1], p3[1]);
-    this.a = [coeffx[0], coeffy[0]];
-    this.b = [coeffx[1], coeffy[1]];
-    this.c = [coeffx[2], coeffy[2]];
-    this.d = [coeffx[3], coeffy[3]];
-    this.points = [p0, p1, p2, p3];
-  }
-  PolynomialBezier.prototype.point = function (t) {
-    return [((this.a[0] * t + this.b[0]) * t + this.c[0]) * t + this.d[0], ((this.a[1] * t + this.b[1]) * t + this.c[1]) * t + this.d[1]];
-  };
-  PolynomialBezier.prototype.derivative = function (t) {
-    return [(3 * t * this.a[0] + 2 * this.b[0]) * t + this.c[0], (3 * t * this.a[1] + 2 * this.b[1]) * t + this.c[1]];
-  };
-  PolynomialBezier.prototype.tangentAngle = function (t) {
-    var p = this.derivative(t);
-    return Math.atan2(p[1], p[0]);
-  };
-  PolynomialBezier.prototype.normalAngle = function (t) {
-    var p = this.derivative(t);
-    return Math.atan2(p[0], p[1]);
-  };
-  PolynomialBezier.prototype.inflectionPoints = function () {
-    var denom = this.a[1] * this.b[0] - this.a[0] * this.b[1];
-    if (floatZero(denom)) return [];
-    var tcusp = -0.5 * (this.a[1] * this.c[0] - this.a[0] * this.c[1]) / denom;
-    var square = tcusp * tcusp - 1 / 3 * (this.b[1] * this.c[0] - this.b[0] * this.c[1]) / denom;
-    if (square < 0) return [];
-    var root = Math.sqrt(square);
-    if (floatZero(root)) {
-      if (root > 0 && root < 1) return [tcusp];
-      return [];
-    }
-    return [tcusp - root, tcusp + root].filter(function (r) {
-      return r > 0 && r < 1;
-    });
-  };
-  PolynomialBezier.prototype.split = function (t) {
-    if (t <= 0) return [singlePoint(this.points[0]), this];
-    if (t >= 1) return [this, singlePoint(this.points[this.points.length - 1])];
-    var p10 = lerpPoint(this.points[0], this.points[1], t);
-    var p11 = lerpPoint(this.points[1], this.points[2], t);
-    var p12 = lerpPoint(this.points[2], this.points[3], t);
-    var p20 = lerpPoint(p10, p11, t);
-    var p21 = lerpPoint(p11, p12, t);
-    var p3 = lerpPoint(p20, p21, t);
-    return [new PolynomialBezier(this.points[0], p10, p20, p3, true), new PolynomialBezier(p3, p21, p12, this.points[3], true)];
-  };
-  function extrema(bez, comp) {
-    var min = bez.points[0][comp];
-    var max = bez.points[bez.points.length - 1][comp];
-    if (min > max) {
-      var e = max;
-      max = min;
-      min = e;
-    }
-    // Derivative roots to find min/max
-    var f = quadRoots(3 * bez.a[comp], 2 * bez.b[comp], bez.c[comp]);
-    for (var i = 0; i < f.length; i += 1) {
-      if (f[i] > 0 && f[i] < 1) {
-        var val = bez.point(f[i])[comp];
-        if (val < min) min = val;else if (val > max) max = val;
-      }
-    }
-    return {
-      min: min,
-      max: max
-    };
-  }
-  PolynomialBezier.prototype.bounds = function () {
-    return {
-      x: extrema(this, 0),
-      y: extrema(this, 1)
-    };
-  };
-  PolynomialBezier.prototype.boundingBox = function () {
-    var bounds = this.bounds();
-    return {
-      left: bounds.x.min,
-      right: bounds.x.max,
-      top: bounds.y.min,
-      bottom: bounds.y.max,
-      width: bounds.x.max - bounds.x.min,
-      height: bounds.y.max - bounds.y.min,
-      cx: (bounds.x.max + bounds.x.min) / 2,
-      cy: (bounds.y.max + bounds.y.min) / 2
-    };
-  };
-  function intersectData(bez, t1, t2) {
-    var box = bez.boundingBox();
-    return {
-      cx: box.cx,
-      cy: box.cy,
-      width: box.width,
-      height: box.height,
-      bez: bez,
-      t: (t1 + t2) / 2,
-      t1: t1,
-      t2: t2
-    };
-  }
-  function splitData(data) {
-    var split = data.bez.split(0.5);
-    return [intersectData(split[0], data.t1, data.t), intersectData(split[1], data.t, data.t2)];
-  }
-  function boxIntersect(b1, b2) {
-    return Math.abs(b1.cx - b2.cx) * 2 < b1.width + b2.width && Math.abs(b1.cy - b2.cy) * 2 < b1.height + b2.height;
-  }
-  function intersectsImpl(d1, d2, depth, tolerance, intersections, maxRecursion) {
-    if (!boxIntersect(d1, d2)) return;
-    if (depth >= maxRecursion || d1.width <= tolerance && d1.height <= tolerance && d2.width <= tolerance && d2.height <= tolerance) {
-      intersections.push([d1.t, d2.t]);
-      return;
-    }
-    var d1s = splitData(d1);
-    var d2s = splitData(d2);
-    intersectsImpl(d1s[0], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
-    intersectsImpl(d1s[0], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
-    intersectsImpl(d1s[1], d2s[0], depth + 1, tolerance, intersections, maxRecursion);
-    intersectsImpl(d1s[1], d2s[1], depth + 1, tolerance, intersections, maxRecursion);
-  }
-  PolynomialBezier.prototype.intersections = function (other, tolerance, maxRecursion) {
-    if (tolerance === undefined) tolerance = 2;
-    if (maxRecursion === undefined) maxRecursion = 7;
-    var intersections = [];
-    intersectsImpl(intersectData(this, 0, 1), intersectData(other, 0, 1), 0, tolerance, intersections, maxRecursion);
-    return intersections;
-  };
-  PolynomialBezier.shapeSegment = function (shapePath, index) {
-    var nextIndex = (index + 1) % shapePath.length();
-    return new PolynomialBezier(shapePath.v[index], shapePath.o[index], shapePath.i[nextIndex], shapePath.v[nextIndex], true);
-  };
-  PolynomialBezier.shapeSegmentInverted = function (shapePath, index) {
-    var nextIndex = (index + 1) % shapePath.length();
-    return new PolynomialBezier(shapePath.v[nextIndex], shapePath.i[nextIndex], shapePath.o[index], shapePath.v[index], true);
-  };
-  function crossProduct(a, b) {
-    return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  }
-  function lineIntersection(start1, end1, start2, end2) {
-    var v1 = [start1[0], start1[1], 1];
-    var v2 = [end1[0], end1[1], 1];
-    var v3 = [start2[0], start2[1], 1];
-    var v4 = [end2[0], end2[1], 1];
-    var r = crossProduct(crossProduct(v1, v2), crossProduct(v3, v4));
-    if (floatZero(r[2])) return null;
-    return [r[0] / r[2], r[1] / r[2]];
-  }
-  function polarOffset(p, angle, length) {
-    return [p[0] + Math.cos(angle) * length, p[1] - Math.sin(angle) * length];
-  }
-  function pointDistance(p1, p2) {
-    return Math.hypot(p1[0] - p2[0], p1[1] - p2[1]);
-  }
-  function pointEqual(p1, p2) {
-    return floatEqual(p1[0], p2[0]) && floatEqual(p1[1], p2[1]);
-  }
-
   function ZigZagModifier() {}
   extendPrototype([ShapeModifier], ZigZagModifier);
   ZigZagModifier.prototype.initModifierProperties = function (elem, data) {
@@ -6348,7 +6421,6 @@
         this._warned = true;
         console.warn('Missing character from exported characters list: ', _char, style, font); // eslint-disable-line no-console
       }
-
       return emptyChar;
     }
     function measureText(_char2, fontName, size) {
@@ -6561,7 +6633,6 @@
       /* this.maskManager.renderFrame(this.finalTransform.mat);
           this.renderableEffectsManager.renderFrame(this._isFirstFrame); */
     },
-
     sourceRectAtTime: function sourceRectAtTime() {
       return {
         top: 0,
@@ -8456,7 +8527,6 @@
         // gfill.setAttribute('fy','200');
       }
     }
-
     function renderStroke(styleData, itemData, isFirstFrame) {
       var styleElem = itemData.style;
       var d = itemData.d;
@@ -8501,7 +8571,6 @@
     this.prevViewData = [];
     // Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
   }
-
   extendPrototype([BaseElement, TransformElement, SVGBaseElement, IShapeElement, HierarchyElement, FrameElement, RenderableDOMElement], SVGShapeElement);
   SVGShapeElement.prototype.initSecondaryElement = function () {};
   SVGShapeElement.prototype.identityMatrix = new Matrix();
@@ -9412,7 +9481,6 @@
             ind = min(max(0, ind + 0.5 - s), e - s);
             mult = (1 + Math.cos(Math.PI + Math.PI * 2 * ind / (e - s))) / 2; // eslint-disable-line
           }
-
           mult = easer(mult);
         } else {
           if (ind >= floor(s)) {
@@ -10350,7 +10418,6 @@
         }
         //
       }
-
       if (singleShape && tSpan) {
         tSpan.setAttribute('d', shapeStr);
       }
