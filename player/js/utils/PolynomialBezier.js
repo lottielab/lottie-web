@@ -14,6 +14,24 @@ function lerpPoint(p0, p1, amount) {
   return [lerp(p0[0], p1[0], amount), lerp(p0[1], p1[1], amount)];
 }
 
+function addVectors(a, b) {
+  return a.map((v, i) => v + (b[i] || 0));
+}
+
+function subtractVectors(a, b) {
+  return a.map((v, i) => v - (b[i] || 0));
+}
+
+function normalizeVector(a) {
+  const length = Math.hypot(...a);
+
+  if (length > Number.EPSILON) {
+    return a.map((v) => v / length);
+  }
+
+  return a;
+}
+
 function quadRoots(a, b, c) {
   // no root
   if (a === 0) return [];
@@ -35,6 +53,41 @@ function polynomialCoefficients(p0, p1, p2, p3) {
     -3 * p0 + 3 * p1,
     p0,
   ];
+}
+
+/**
+ * Returns the _normalized_ direction vector of the tangent of the curve when approaching
+ * the point from negative infinity, pointing outwards at cusps.
+ */
+function tangentDirection(p0, to, ti, p3, t) {
+  const controlPoints = [p0, addVectors(p0, to), addVectors(p3, ti), p3];
+  const firstSubdivision = deCasteljauSubdivision(controlPoints, t);
+  const secondSubdivision = deCasteljauSubdivision(firstSubdivision, t);
+
+  const tangent1 = subtractVectors(secondSubdivision[1], secondSubdivision[0]);
+  const length1 = Math.hypot(...tangent1);
+  if (length1 > Number.EPSILON) return tangent1.map((v) => v / length1);
+
+  const tangent2 = subtractVectors(firstSubdivision[2], firstSubdivision[0]);
+  const length2 = Math.hypot(...tangent2);
+  if (length2 > Number.EPSILON) return tangent2.map((v) => v / length2);
+
+  // Here we have to try both cases, as any two of the three points may coincide without the
+  // curve being degenerate
+  const tangent3 = subtractVectors(firstSubdivision[1], firstSubdivision[0]);
+  const length3 = Math.hypot(...tangent3);
+  if (length3 > Number.EPSILON) return tangent3.map((v) => v / length3);
+
+  return normalizeVector(subtractVectors(controlPoints[3], controlPoints[0]));
+}
+
+function deCasteljauSubdivision(points, t) {
+  const result = [];
+  for (let i = 0; i < points.length - 1; i += 1) {
+    result.push(lerpPoint(points[i], points[i + 1], t));
+  }
+
+  return result;
 }
 
 function singlePoint(p) {
@@ -250,4 +303,5 @@ export {
   pointDistance,
   pointEqual,
   floatEqual,
+  tangentDirection,
 };
