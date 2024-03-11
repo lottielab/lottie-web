@@ -352,47 +352,54 @@ const ShapePropertyFactory = (function () {
           this.convertToPath();
         }
       },
-      convertStarToPath: function () {
-        var numPts = Math.floor(this.pt.v) * 2;
-        var angle = (Math.PI * 2) / numPts;
-        /* this.v.v.length = numPts;
-                this.v.i.length = numPts;
-                this.v.o.length = numPts; */
-        var longFlag = true;
-        var longRad = this.or.v;
-        var shortRad = this.ir.v;
-        var longRound = this.os.v;
-        var shortRound = this.is.v;
-        var longPerimSegment = (2 * Math.PI * longRad) / (numPts * 2);
-        var shortPerimSegment = (2 * Math.PI * shortRad) / (numPts * 2);
-        var i;
-        var rad;
-        var roundness;
-        var perimSegment;
-        var currentAng = -Math.PI / 2;
-        currentAng += this.r.v;
-        var dir = this.data.d === 3 ? -1 : 1;
-        this.v._length = 0;
-        for (i = 0; i < numPts; i += 1) {
-          rad = longFlag ? longRad : shortRad;
-          roundness = longFlag ? longRound : shortRound;
-          perimSegment = longFlag ? longPerimSegment : shortPerimSegment;
-          var x = rad * Math.cos(currentAng);
-          var y = rad * Math.sin(currentAng);
-          var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
-          var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
-          x += +this.p.v[0];
-          y += +this.p.v[1];
-          this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
 
-          /* this.v.v[i] = [x,y];
-                    this.v.i[i] = [x+ox*perimSegment*roundness*dir,y+oy*perimSegment*roundness*dir];
-                    this.v.o[i] = [x-ox*perimSegment*roundness*dir,y-oy*perimSegment*roundness*dir];
-                    this.v._length = numPts; */
+      convertStarToPath: function convertStarToPath() {
+        const points = this.pt.v;
+        const partialPointAmount = points - Math.floor(points)
+
+        const anglePerPoint = Math.PI / points;
+
+        const longRadius = this.or.v;
+        const shortRadius = this.ir.v;
+        const longRoundness = this.os.v;
+        const shortRoundness = this.is.v;
+        const longPerimSegment = longRoundness * longRadius * Math.PI / (points * 2);
+        const shortPerimSegment = shortRoundness * shortRadius * Math.PI / (points * 2);
+
+        let currentAng = -Math.PI / 2;
+        currentAng += this.r.v;
+        const dir = this.data.d === 3 ? -1 : 1;
+        this.v._length = 0;
+
+        let longFlag = false;
+        const numPoints = 2 * Math.ceil(points);
+        for (let i = 0; i < numPoints; i += 1) {
+          let dAngle = anglePerPoint * dir;
+          let radius = longFlag ? longRadius : shortRadius;
+          let perimSegment = longFlag ? longPerimSegment : shortPerimSegment;
+
+          if (partialPointAmount !== 0 && i === numPoints - 1) {
+            dAngle *= partialPointAmount;
+            radius = lerp(shortRadius, longRadius, partialPointAmount);
+            perimSegment *= partialPointAmount;
+          }
+
+          currentAng += dAngle;
+
+          const sin = Math.sin(currentAng);
+          const cos = Math.cos(currentAng);
+
+          const x = this.p.v[0] + radius * cos;
+          const y = this.p.v[1] + radius * sin;
+
+          const perimX = sin * perimSegment * dir;
+          const perimY = -cos * perimSegment * dir;
+          this.v.setTripleAt(x, y, x - perimX, y - perimY, x + perimX, y + perimY, i, true);
+
           longFlag = !longFlag;
-          currentAng += angle * dir;
         }
       },
+
       convertPolygonToPath: function () {
         var numPts = Math.floor(this.pt.v);
         var angle = (Math.PI * 2) / numPts;
