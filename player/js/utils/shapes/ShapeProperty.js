@@ -11,6 +11,7 @@ import PropertyFactory from '../PropertyFactory';
 import BezierFactory from '../../3rd_party/BezierEaser';
 import shapePool from '../pooling/shape_pool';
 import shapeCollectionPool from '../pooling/shapeCollection_pool';
+import { lerp } from "../PolynomialBezier";
 
 const ShapePropertyFactory = (function () {
   var initFrame = -999999;
@@ -392,34 +393,74 @@ const ShapePropertyFactory = (function () {
           const x = this.p.v[0] + radius * cos;
           const y = this.p.v[1] + radius * sin;
 
-          const perimX = sin * perimSegment * dir;
-          const perimY = -cos * perimSegment * dir;
-          this.v.setTripleAt(x, y, x - perimX, y - perimY, x + perimX, y + perimY, i, true);
+          const tangentX = sin * perimSegment * dir;
+          const tangentY = -cos * perimSegment * dir;
+          this.v.setTripleAt(x, y, x - tangentX, y - tangentY, x + tangentX, y + tangentY, i, true);
 
           longFlag = !longFlag;
         }
       },
 
       convertPolygonToPath: function () {
-        var numPts = Math.floor(this.pt.v);
-        var angle = (Math.PI * 2) / numPts;
-        var rad = this.or.v;
-        var roundness = this.os.v;
-        var perimSegment = (2 * Math.PI * rad) / (numPts * 4);
-        var i;
-        var currentAng = -Math.PI * 0.5;
-        var dir = this.data.d === 3 ? -1 : 1;
+        const points = this.pt.v;
+        const partialPointAmount = points - Math.floor(points)
+
+        const anglePerPoint = 2 * Math.PI / points;
+
+        const radius = this.or.v;
+        const roundness = this.os.v;
+        const perimSegment = roundness * radius * Math.PI / (2 * points);
+
+        let currentAng = -Math.PI / 2;
         currentAng += this.r.v;
+        const dir = this.data.d === 3 ? -1 : 1;
         this.v._length = 0;
-        for (i = 0; i < numPts; i += 1) {
-          var x = rad * Math.cos(currentAng);
-          var y = rad * Math.sin(currentAng);
-          var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
-          var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
-          x += +this.p.v[0];
-          y += +this.p.v[1];
-          this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
-          currentAng += angle * dir;
+
+        // Inradius of a rounded polygon and the corresponding perimSegment,
+        // both computed using de Casteljau subdivision of the Bezier curve
+        const inradius = radius * Math.cos(anglePerPoint / 2) + 3 / 4 * perimSegment * Math.sin(anglePerPoint / 2);
+        const inradiusPerimSegment = Math.sin(anglePerPoint / 2) * (radius / 2 - perimSegment / 8);
+
+        const numPoints = Math.ceil(points);
+        for (let i = 0; i < numPoints; i += 1) {
+          let dAngle = anglePerPoint * dir;
+          let r = radius;
+          let perimSegment1 = perimSegment;
+          let perimSegment2 = perimSegment;
+
+          if (partialPointAmount !== 0) {
+            if (i === numPoints - 1) {
+              dAngle *= (1 + partialPointAmount) / 2;
+              r = lerp(inradius, radius, partialPointAmount);
+              perimSegment1 = lerp(inradiusPerimSegment, perimSegment, partialPointAmount);
+              perimSegment2 = lerp(inradiusPerimSegment, perimSegment, partialPointAmount);
+            }
+
+            if (i === 0) {
+              // The initial value (perimSegment / 2) is also computed using de Casteljau, then
+              // it's just interpolated linearly
+              perimSegment2 = lerp(perimSegment / 2, perimSegment, partialPointAmount);
+            }
+
+            if (i === numPoints - 2) {
+              perimSegment1 = lerp(perimSegment / 2, perimSegment, partialPointAmount);
+            }
+          }
+
+          currentAng += dAngle;
+
+          const cos = Math.cos(currentAng);
+          const sin = Math.sin(currentAng);
+
+          const x = this.p.v[0] + r * cos;
+          const y = this.p.v[1] + r * sin;
+
+          const tangentX1 = sin * perimSegment1 * dir;
+          const tangentY1 = -cos * perimSegment1 * dir;
+          const tangentX2 = sin * perimSegment2 * dir;
+          const tangentY2 = -cos * perimSegment2 * dir;
+
+          this.v.setTripleAt(x, y, x - tangentX1, y - tangentY1, x + tangentX2, y + tangentY2, i, true);
         }
         this.paths.length = 0;
         this.paths[0] = this.v;

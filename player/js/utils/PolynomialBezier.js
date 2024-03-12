@@ -304,4 +304,5 @@ export {
   pointEqual,
   floatEqual,
   tangentDirection,
+  lerp,
 };
