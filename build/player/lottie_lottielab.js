@@ -175,7 +175,7 @@
     });
   }
 
-  function _typeof$3(o) { "@babel/helpers - typeof"; return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$3(o); }
+  function _typeof$3(obj) { "@babel/helpers - typeof"; return _typeof$3 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$3(obj); }
   var subframeEnabled = true;
   var expressionsPlugin = null;
   var expressionsInterfaces = null;
@@ -448,7 +448,7 @@
     return document.createElementNS(svgNS, type);
   }
 
-  function _typeof$2(o) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$2(o); }
+  function _typeof$2(obj) { "@babel/helpers - typeof"; return _typeof$2 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$2(obj); }
   var dataManager = function () {
     var _counterId = 1;
     var processes = [];
@@ -1430,7 +1430,7 @@
     return '';
   }
 
-  function _typeof$1(o) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof$1(o); }
+  function _typeof$1(obj) { "@babel/helpers - typeof"; return _typeof$1 = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof$1(obj); }
   var AnimationItem = function AnimationItem() {
     this._cbs = [];
     this.name = '';
@@ -2768,6 +2768,7 @@
         bezierSegmentPoints[i * 4 + 2] = math.round((u0u1u1 * pt1[i] + t0u1u1_3 * pt3[i] + t0t1u1_3 * pt4[i] + t0t1t1 * pt2[i]) * 1000) / 1000; // eslint-disable-line camelcase
         bezierSegmentPoints[i * 4 + 3] = math.round((u1u1u1 * pt1[i] + t1u1u1_3 * pt3[i] + t1t1u1_3 * pt4[i] + t1t1t1 * pt2[i]) * 1000) / 1000; // eslint-disable-line camelcase
       }
+
       return bezierSegmentPoints;
     }
     return {
@@ -3817,6 +3818,7 @@
         this.interpolateShape(frameNum, this.pv, this._caching);
         /// /
       }
+
       this._caching.lastFrame = frameNum;
       return this.pv;
     }
@@ -4323,6 +4325,7 @@
       return this._t(mCos, mSin, 0, 0, -mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)._t(1, 0, 0, 0, _tan(ax), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)._t(mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
       // return this._t(mCos, mSin, -mSin, mCos, 0, 0)._t(1, 0, _tan(ax), 1, 0, 0)._t(mCos, -mSin, mSin, mCos, 0, 0);
     }
+
     function scale(sx, sy, sz) {
       if (!sz && sz !== 0) {
         sz = 1;
@@ -4457,6 +4460,7 @@
            y: x * me.b + y * me.d + me.f
            }; */
     }
+
     function applyToX(x, y, z) {
       return x * this.props[0] + y * this.props[4] + z * this.props[8] + this.props[12];
     }
@@ -4612,7 +4616,7 @@
     };
   }();
 
-  function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+  function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
   var lottie = {};
   var standalone = '__[STANDALONE]__';
   var animationData = '__[ANIMATIONDATA]__';
@@ -5060,6 +5064,7 @@
         this._warned = true;
         console.warn('Missing character from exported characters list: ', _char, style, font); // eslint-disable-line no-console
       }
+
       return emptyChar;
     }
     function measureText(_char2, fontName, size) {
@@ -5272,6 +5277,7 @@
       /* this.maskManager.renderFrame(this.finalTransform.mat);
           this.renderableEffectsManager.renderFrame(this._isFirstFrame); */
     },
+
     sourceRectAtTime: function sourceRectAtTime() {
       return {
         top: 0,
@@ -7432,7 +7438,7 @@
             itemData.of.setAttribute('r', rad);
           }
         }
-        if (itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
+        if (itemData.s._mdf || itemData.e._mdf || itemData.h._mdf || itemData.a._mdf || isFirstFrame) {
           if (!rad) {
             rad = Math.sqrt(Math.pow(pt1[0] - pt2[0], 2) + Math.pow(pt1[1] - pt2[1], 2));
           }
@@ -7456,6 +7462,7 @@
         // gfill.setAttribute('fy','200');
       }
     }
+
     function renderStroke(styleData, itemData, isFirstFrame) {
       var styleElem = itemData.style;
       var d = itemData.d;
@@ -7500,6 +7507,7 @@
     this.prevViewData = [];
     // Moving any property that doesn't get too much access after initialization because of v8 way of handling more than 10 properties.
   }
+
   extendPrototype([BaseElement, TransformElement, SVGBaseElement, IShapeElement, HierarchyElement, FrameElement, RenderableDOMElement], SVGShapeElement);
   SVGShapeElement.prototype.initSecondaryElement = function () {};
   SVGShapeElement.prototype.identityMatrix = new Matrix();
@@ -8410,6 +8418,7 @@
             ind = min(max(0, ind + 0.5 - s), e - s);
             mult = (1 + Math.cos(Math.PI + Math.PI * 2 * ind / (e - s))) / 2; // eslint-disable-line
           }
+
           mult = easer(mult);
         } else {
           if (ind >= floor(s)) {
@@ -9347,6 +9356,7 @@
         }
         //
       }
+
       if (singleShape && tSpan) {
         tSpan.setAttribute('d', shapeStr);
       }
@@ -10233,6 +10243,7 @@
     filter.appendChild(feMerge);
     //
   }
+
   extendPrototype([SVGComposableEffect], SVGDropShadowEffect);
   SVGDropShadowEffect.prototype.renderFrame = function (forceRender) {
     if (forceRender || this.filterManager._mdf) {
