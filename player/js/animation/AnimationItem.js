@@ -317,6 +317,9 @@ AnimationItem.prototype.configAnimation = function (animData) {
     if (this.isPaused) {
       this.audioController.pause();
     }
+    if (this.renderer.reify) {
+      this.renderer.reify();
+    }
   } catch (error) {
     this.triggerConfigError(error);
   }

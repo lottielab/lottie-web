@@ -77,7 +77,6 @@ SVGRendererBase.prototype.configAnimation = function (animData) {
   this.svgElement.setAttribute('preserveAspectRatio', this.renderConfig.preserveAspectRatio);
   // this.layerElement.style.transform = 'translate3d(0,0,0)';
   // this.layerElement.style.transformOrigin = this.layerElement.style.mozTransformOrigin = this.layerElement.style.webkitTransformOrigin = this.layerElement.style['-webkit-transform'] = "0px 0px 0px";
-  this.animationItem.wrapper.appendChild(this.svgElement);
   // Mask animation
   var defs = this.globalData.defs;
 
@@ -119,6 +118,10 @@ SVGRendererBase.prototype.destroy = function () {
   this.animationItem = null;
 };
 
+SVGRendererBase.prototype.reify = function() {
+  //this.animationItem.wrapper.appendChild(this.svgElement.reify());
+  this.svgElement.reifyInto(this.animationItem.wrapper);
+}
 SVGRendererBase.prototype.updateContainerSize = function () {
 };
 
