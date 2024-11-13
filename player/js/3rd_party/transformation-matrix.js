@@ -33,11 +33,6 @@ import {
  */
 
 const Matrix = (function () {
-  var _cos = Math.cos;
-  var _sin = Math.sin;
-  var _tan = Math.tan;
-  var _rnd = Math.round;
-
   function reset() {
     this.props[0] = 1;
     this.props[1] = 0;
@@ -62,8 +57,8 @@ const Matrix = (function () {
     if (angle === 0) {
       return this;
     }
-    var mCos = _cos(angle);
-    var mSin = _sin(angle);
+    var mCos = Math.cos(angle);
+    var mSin = Math.sin(angle);
     return this._t(mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -71,8 +66,8 @@ const Matrix = (function () {
     if (angle === 0) {
       return this;
     }
-    var mCos = _cos(angle);
-    var mSin = _sin(angle);
+    var mCos = Math.cos(angle);
+    var mSin = Math.sin(angle);
     return this._t(1, 0, 0, 0, 0, mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1);
   }
 
@@ -80,8 +75,8 @@ const Matrix = (function () {
     if (angle === 0) {
       return this;
     }
-    var mCos = _cos(angle);
-    var mSin = _sin(angle);
+    var mCos = Math.cos(angle);
+    var mSin = Math.sin(angle);
     return this._t(mCos, 0, mSin, 0, 0, 1, 0, 0, -mSin, 0, mCos, 0, 0, 0, 0, 1);
   }
 
@@ -89,8 +84,8 @@ const Matrix = (function () {
     if (angle === 0) {
       return this;
     }
-    var mCos = _cos(angle);
-    var mSin = _sin(angle);
+    var mCos = Math.cos(angle);
+    var mSin = Math.sin(angle);
     return this._t(mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 
@@ -99,16 +94,16 @@ const Matrix = (function () {
   }
 
   function skew(ax, ay) {
-    return this.shear(_tan(ax), _tan(ay));
+    return this.shear(Math.tan(ax), Math.tan(ay));
   }
 
   function skewFromAxis(ax, angle) {
-    var mCos = _cos(angle);
-    var mSin = _sin(angle);
+    var mCos = Math.cos(angle);
+    var mSin = Math.sin(angle);
     return this._t(mCos, mSin, 0, 0, -mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
-      ._t(1, 0, 0, 0, _tan(ax), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+      ._t(1, 0, 0, 0, Math.tan(ax), 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
       ._t(mCos, -mSin, 0, 0, mSin, mCos, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-    // return this._t(mCos, mSin, -mSin, mCos, 0, 0)._t(1, 0, _tan(ax), 1, 0, 0)._t(mCos, -mSin, mSin, mCos, 0, 0);
+    // return this._t(mCos, mSin, -mSin, mCos, 0, 0)._t(1, 0, Math.tan(ax), 1, 0, 0)._t(mCos, -mSin, mSin, mCos, 0, 0);
   }
 
   function scale(sx, sy, sz) {
@@ -368,6 +363,12 @@ const Matrix = (function () {
     return Math.round((x * _p[0] + y * _p[4] + _p[12]) * 100) / 100 + ',' + Math.round((x * _p[1] + y * _p[5] + _p[13]) * 100) / 100;
   }
 
+  function applyToPointDavid(x, y, dst) {
+    var _p = this.props;
+    dst[0] = x * _p[0] + y * _p[4] + _p[12];
+    dst[1] = x * _p[1] + y * _p[5] + _p[13];
+  }
+
   function toCSS() {
     // Doesn't make much sense to add this optimization. If it is an identity matrix, it's very likely this will get called only once since it won't be keyframed.
     /* if(this.isIdentity()) {
@@ -378,7 +379,7 @@ const Matrix = (function () {
     var cssValue = 'matrix3d(';
     var v = 10000;
     while (i < 16) {
-      cssValue += _rnd(props[i] * v) / v;
+      cssValue += Math.round(props[i] * v) / v;
       cssValue += i === 15 ? ')' : ',';
       i += 1;
     }
@@ -388,7 +389,7 @@ const Matrix = (function () {
   function roundMatrixProperty(val) {
     var v = 10000;
     if ((val < 0.000001 && val > 0) || (val > -0.000001 && val < 0)) {
-      return _rnd(val * v) / v;
+      return Math.round(val * v) / v;
     }
     return val;
   }
@@ -428,6 +429,7 @@ const Matrix = (function () {
     this.applyToZ = applyToZ;
     this.applyToPointArray = applyToPointArray;
     this.applyToTriplePoints = applyToTriplePoints;
+    this.applyToPointDavid = applyToPointDavid;
     this.applyToPointStringified = applyToPointStringified;
     this.toCSS = toCSS;
     this.to2dCSS = to2dCSS;

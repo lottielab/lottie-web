@@ -475,7 +475,7 @@ function getProp(elem, data, type, mult, container) {
   var p;
   if (!data.k.length) {
     p = new ValueProperty(elem, data, mult, container);
-  } else if (typeof (data.k[0]) === 'number') {
+  } else if (!isNaN(data.k[0])) {
     p = new MultiDimensionalProperty(elem, data, mult, container);
   } else {
     switch (type) {
