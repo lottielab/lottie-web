@@ -135,9 +135,8 @@ TrimModifier.prototype.processShapes = function (_isFirstFrame) {
 
   if (e === s) {
     for (i = 0; i < len; i += 1) {
-      this.shapes[i].localShapeCollection.releaseShapes();
       this.shapes[i].shape._mdf = true;
-      this.shapes[i].shape.paths = this.shapes[i].localShapeCollection;
+      this.shapes[i].shape.pathsData = [this.shapes[i].shape.v];
       if (this._mdf) {
         this.shapes[i].pathsData.length = 0;
       }
@@ -145,22 +144,21 @@ TrimModifier.prototype.processShapes = function (_isFirstFrame) {
   } else if (!((e === 1 && s === 0) || (e === 0 && s === 1))) {
     var segments = [];
     var shapeData;
-    var localShapeCollection;
     for (i = 0; i < len; i += 1) {
       shapeData = this.shapes[i];
       // if shape hasn't changed and trim properties haven't changed, cached previous path can be used
       if (!shapeData.shape._mdf && !this._mdf && !_isFirstFrame && this.m !== 2) {
-        shapeData.shape.paths = shapeData.localShapeCollection;
+        shapeData.shape.paths = [shapeData.shape.v]
       } else {
-        shapePaths = shapeData.shape.paths;
-        jLen = shapePaths._length;
+        shapePaths = shapeData.shape.pathsData;
+        jLen = shapePaths.length;
         totalShapeLength = 0;
         if (!shapeData.shape._mdf && shapeData.pathsData.length) {
           totalShapeLength = shapeData.totalShapeLength;
         } else {
           pathsData = this.releasePathsData(shapeData.pathsData);
           for (j = 0; j < jLen; j += 1) {
-            pathData = bez.getSegmentsLength(shapePaths.shapes[j]);
+            pathData = bez.getSegmentsLength(shapePaths[j]);
             pathsData.push(pathData);
             totalShapeLength += pathData.totalLength;
           }
@@ -178,9 +176,9 @@ TrimModifier.prototype.processShapes = function (_isFirstFrame) {
     var edges;
     for (i = len - 1; i >= 0; i -= 1) {
       shapeData = this.shapes[i];
+      var lastShapeInCollection = shapeData.shape.pathsData[shapeData.shape.pathsData.length - 1];
+      var newPathsData = [];
       if (shapeData.shape._mdf) {
-        localShapeCollection = shapeData.localShapeCollection;
-        localShapeCollection.releaseShapes();
         // if m === 2 means paths are trimmed individually so edges need to be found for this specific shape relative to whoel group
         if (this.m === 2 && len > 1) {
           edges = this.calculateShapeEdges(s, e, shapeData.totalShapeLength, addedLength, totalModifierLength);
@@ -216,37 +214,34 @@ TrimModifier.prototype.processShapes = function (_isFirstFrame) {
           var newShapesData = this.addShapes(shapeData, segments[0]);
           if (segments[0].s !== segments[0].e) {
             if (segments.length > 1) {
-              var lastShapeInCollection = shapeData.shape.paths.shapes[shapeData.shape.paths._length - 1];
               if (lastShapeInCollection.c) {
                 var lastShape = newShapesData.pop();
-                this.addPaths(newShapesData, localShapeCollection);
+                this.addPaths(newShapesData, newPathsData);
                 newShapesData = this.addShapes(shapeData, segments[1], lastShape);
               } else {
-                this.addPaths(newShapesData, localShapeCollection);
+                this.addPaths(newShapesData, newPathsData);
                 newShapesData = this.addShapes(shapeData, segments[1]);
               }
             }
-            this.addPaths(newShapesData, localShapeCollection);
+            this.addPaths(newShapesData, newPathsData);
           }
         }
-        shapeData.shape.paths = localShapeCollection;
+
+        shapeData.shape.pathsData = newPathsData;
       }
     }
   } else if (this._mdf) {
     for (i = 0; i < len; i += 1) {
-      // Releasign Trim Cached paths data when no trim applied in case shapes are modified inbetween.
-      // Don't remove this even if it's losing cached info.
-      this.shapes[i].pathsData.length = 0;
       this.shapes[i].shape._mdf = true;
     }
   }
 };
 
-TrimModifier.prototype.addPaths = function (newPaths, localShapeCollection) {
+TrimModifier.prototype.addPaths = function (newPaths, where) {
   var i;
   var len = newPaths.length;
   for (i = 0; i < len; i += 1) {
-    localShapeCollection.addShape(newPaths[i]);
+    where.push(newPaths[i]);
   }
 };
 
@@ -270,9 +265,9 @@ TrimModifier.prototype.addSegmentFromArray = function (points, shapePath, pos, n
 
 TrimModifier.prototype.addShapes = function (shapeData, shapeSegment, shapePath) {
   var pathsData = shapeData.pathsData;
-  var shapePaths = shapeData.shape.paths.shapes;
+  var shapePaths = shapeData.shape.pathsData;
   var i;
-  var len = shapeData.shape.paths._length;
+  var len = shapePaths.length;
   var j;
   var jLen;
   var addedLength = 0;

@@ -4,7 +4,6 @@ import {
 import DynamicPropertyContainer from '../helpers/dynamicProperties';
 import {
   createSizedArray,
-  createTypedArray,
 } from '../helpers/arrays';
 import PropertyFactory from '../PropertyFactory';
 
@@ -15,8 +14,8 @@ function DashProperty(elem, data, renderer, container) {
   this.renderer = renderer;
   this.k = false;
   this.dashStr = '';
-  this.dashArray = createTypedArray('float32', data.length ? data.length - 1 : 0);
-  this.dashoffset = createTypedArray('float32', 1);
+  this.dashArray = createSizedArray(data.length ? data.length - 1 : 0);
+  this.dashoffset = createSizedArray(1);
   this.initDynamicPropertyContainer(container);
   var i;
   var len = data.length || 0;

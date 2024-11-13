@@ -3,15 +3,15 @@ import {
 } from '../functionExtensions';
 import DynamicPropertyContainer from '../helpers/dynamicProperties';
 import {
-  createTypedArray,
+  createSizedArray,
 } from '../helpers/arrays';
 import PropertyFactory from '../PropertyFactory';
 
 function GradientProperty(elem, data, container) {
   this.data = data;
-  this.c = createTypedArray('uint8c', data.p * 4);
+  this.c = createSizedArray(data.p * 4);
   var cLength = data.k.k[0].s ? (data.k.k[0].s.length - data.p * 4) : data.k.k.length - data.p * 4;
-  this.o = createTypedArray('float32', cLength);
+  this.o = createSizedArray(cLength);
   this._cmdf = false;
   this._omdf = false;
   this._collapsable = this.checkCollapsable();

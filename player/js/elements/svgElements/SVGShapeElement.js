@@ -245,7 +245,7 @@ SVGShapeElement.prototype.searchShapes = function (arr, itemsData, prevViewData,
   var modifier;
   var processedPos;
   for (i = len; i >= 0; i -= 1) {
-    processedPos = this.searchProcessedElement(arr[i]);
+    processedPos = this.getProcessedElement(arr[i]);
     if (!processedPos) {
       arr[i]._render = render;
     } else {
@@ -313,7 +313,7 @@ SVGShapeElement.prototype.searchShapes = function (arr, itemsData, prevViewData,
       }
       ownModifiers.push(modifier);
     }
-    this.addProcessedElement(arr[i], i + 1);
+    this.registerProcessedElement(arr[i], i + 1);
   }
   len = ownStyles.length;
   for (i = 0; i < len; i += 1) {

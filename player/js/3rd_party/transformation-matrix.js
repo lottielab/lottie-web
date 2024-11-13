@@ -1,5 +1,6 @@
 import {
-  createTypedArray,
+  //createTypedArray,
+  createSizedArray
 } from '../utils/helpers/arrays';
 
 /*!
@@ -320,7 +321,7 @@ const Matrix = (function () {
   }
 
   function applyToTriplePoints(pt1, pt2, pt3) {
-    var arr = createTypedArray('float32', 6);
+    var arr = createSizedArray(6);
     if (this.isIdentity()) {
       arr[0] = pt1[0];
       arr[1] = pt1[1];
@@ -441,7 +442,7 @@ const Matrix = (function () {
     this._identity = true;
     this._identityCalculated = false;
 
-    this.props = createTypedArray('float32', 16);
+    this.props = createSizedArray(16);
     this.reset();
   };
 }());

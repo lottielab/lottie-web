@@ -229,15 +229,16 @@ SVGRendererBase.prototype.appendElementInPos = function (element, pos) {
   if (!newElement) {
     return;
   }
-  var i = 0;
   var nextElement;
-  while (i < pos) {
-    if (this.elements[i] && this.elements[i] !== true && this.elements[i].getBaseElement()) {
-      nextElement = this.elements[i].getBaseElement();
-    }
-    i += 1;
+  var found = false
+  for (let i = pos - 1; i >= 0; i--) {
+      if (this.elements[i] && this.elements[i] !== true && (nextElement = this.elements[i].getBaseElement())) {
+        found = true;
+        break;
+      }
   }
-  if (nextElement) {
+
+  if (found) {
     this.layerElement.insertBefore(newElement, nextElement);
   } else {
     this.layerElement.appendChild(newElement);

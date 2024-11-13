@@ -34,7 +34,7 @@ const createTypedArray = (function () {
 }());
 
 function createSizedArray(len) {
-  return Array.apply(null, { length: len });
+  return new Array(len || 0);
 }
 
 export {

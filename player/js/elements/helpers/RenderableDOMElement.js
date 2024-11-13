@@ -18,7 +18,7 @@ function RenderableDOMElement() {}
       this.createContainerElements();
       this.createRenderableComponents();
       this.createContent();
-      this.hide();
+      //this.hide();
     },
     hide: function () {
       // console.log('HIDE', this);
@@ -31,9 +31,9 @@ function RenderableDOMElement() {}
     show: function () {
       // console.log('SHOW', this);
       if (this.isInRange && !this.isTransparent) {
-        if (!this.data.hd) {
+        if (!this.data.hd && this.hidden) {
           var elem = this.baseElement || this.layerElement;
-          elem.style.display = 'block';
+          elem.style.display = undefined;
         }
         this.hidden = false;
         this._isFirstFrame = true;

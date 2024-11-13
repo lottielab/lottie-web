@@ -61,7 +61,7 @@ const SVGElementsRenderer = (function () {
     var iterations;
     var k;
     for (l = 0; l < lLen; l += 1) {
-      redraw = itemData.sh._mdf || isFirstFrame;
+      redraw = true; // itemData.sh._mdf || isFirstFrame;
       if (itemData.styles[l].lvl < lvl) {
         mat = _matrixHelper.reset();
         iterations = lvl - itemData.styles[l].lvl;
@@ -83,12 +83,12 @@ const SVGElementsRenderer = (function () {
       } else {
         mat = _identityMatrix;
       }
-      paths = itemData.sh.paths;
-      jLen = paths._length;
+      paths = itemData.sh.pathsData;
+      jLen = paths.length;
       if (redraw) {
         pathStringTransformed = '';
         for (j = 0; j < jLen; j += 1) {
-          pathNodes = paths.shapes[j];
+          pathNodes = paths[j];
           if (pathNodes && pathNodes._length) {
             pathStringTransformed += buildShapeString(pathNodes, pathNodes._length, pathNodes.c, mat);
           }

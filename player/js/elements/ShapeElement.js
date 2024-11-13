@@ -43,7 +43,24 @@ IShapeElement.prototype = {
     }
   },
 
-  searchProcessedElement: function (elem) {
+  /*getProcessedElement: function(elem) {
+    if (!this._processedElementMap) {
+      this._processedElementMap = new Map();
+    }
+
+    return this._processedElementMap.get(elem);
+  },
+
+  registerProcessedElement: function(elem, pos) {
+    if (!this._processedElementMap) {
+      this._processedElementMap = new Map();
+    }
+
+    this._processedElementMap.set(elem, pos);
+  },
+  */
+
+  getProcessedElement: function (elem) {
     var elements = this.processedElements;
     var i = 0;
     var len = elements.length;
@@ -55,7 +72,7 @@ IShapeElement.prototype = {
     }
     return 0;
   },
-  addProcessedElement: function (elem, pos) {
+  registerProcessedElement: function (elem, pos) {
     var elements = this.processedElements;
     var i = elements.length;
     while (i) {

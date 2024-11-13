@@ -2,7 +2,7 @@ import {
   degToRads,
 } from './common';
 import {
-  createTypedArray,
+  createSizedArray
 } from './helpers/arrays';
 import BezierFactory from '../3rd_party/BezierEaser';
 import {
@@ -18,7 +18,7 @@ function interpolateValue(frameNum, caching) {
   var offsetTime = this.offsetTime;
   var newValue;
   if (this.propType === 'multidimensional') {
-    newValue = createTypedArray('float32', this.pv.length);
+    newValue = createSizedArray(this.pv.length); //createTypedArray('float32', this.pv.length);
   }
   var iterationIndex = caching.lastIndex;
   var i = iterationIndex;
@@ -356,7 +356,6 @@ function ValueProperty(elem, data, mult, container) {
   this.comp = elem.comp;
   this.k = false;
   this.kf = false;
-  this.vel = 0;
   this.effectsSequence = [];
   this._isFirstFrame = true;
   this.getValue = processEffectsSequence;
@@ -377,9 +376,8 @@ function MultiDimensionalProperty(elem, data, mult, container) {
   this.frameId = -1;
   var i;
   var len = data.k.length;
-  this.v = createTypedArray('float32', len);
-  this.pv = createTypedArray('float32', len);
-  this.vel = createTypedArray('float32', len);
+  this.v = createSizedArray(len) // createTypedArray('float32', len);
+  this.pv = createSizedArray(len) // createTypedArray('float32', len);
   for (i = 0; i < len; i += 1) {
     this.v[i] = data.k[i] * this.mult;
     this.pv[i] = data.k[i];
@@ -460,48 +458,45 @@ function KeyframedMultidimensionalProperty(elem, data, mult, container) {
   this.interpolateValue = interpolateValue;
   this.frameId = -1;
   var arrLen = data.k[0].s.length;
-  this.v = createTypedArray('float32', arrLen);
-  this.pv = createTypedArray('float32', arrLen);
+  this.v = createSizedArray(arrLen) // createTypedArray('float32', arrLen);
+  this.pv = createSizedArray(arrLen) // createTypedArray('float32', arrLen);
   for (i = 0; i < arrLen; i += 1) {
     this.v[i] = initFrame;
     this.pv[i] = initFrame;
   }
-  this._caching = { lastFrame: initFrame, lastIndex: 0, value: createTypedArray('float32', arrLen) };
+  this._caching = { lastFrame: initFrame, lastIndex: 0, value: createSizedArray(arrLen) /*createTypedArray('float32', arrLen)*/ };
   this.addEffect = addEffect;
 }
 
-const PropertyFactory = (function () {
-  function getProp(elem, data, type, mult, container) {
-    if (data.sid) {
-      data = elem.globalData.slotManager.getProp(data);
-    }
-    var p;
-    if (!data.k.length) {
-      p = new ValueProperty(elem, data, mult, container);
-    } else if (typeof (data.k[0]) === 'number') {
-      p = new MultiDimensionalProperty(elem, data, mult, container);
-    } else {
-      switch (type) {
-        case 0:
-          p = new KeyframedValueProperty(elem, data, mult, container);
-          break;
-        case 1:
-          p = new KeyframedMultidimensionalProperty(elem, data, mult, container);
-          break;
-        default:
-          break;
-      }
-    }
-    if (p.effectsSequence.length) {
-      container.addDynamicProperty(p);
-    }
-    return p;
+function getProp(elem, data, type, mult, container) {
+  if (data.sid) {
+    data = elem.globalData.slotManager.getProp(data);
   }
+  var p;
+  if (!data.k.length) {
+    p = new ValueProperty(elem, data, mult, container);
+  } else if (typeof (data.k[0]) === 'number') {
+    p = new MultiDimensionalProperty(elem, data, mult, container);
+  } else {
+    switch (type) {
+      case 0:
+        p = new KeyframedValueProperty(elem, data, mult, container);
+        break;
+      case 1:
+        p = new KeyframedMultidimensionalProperty(elem, data, mult, container);
+        break;
+      default:
+        break;
+    }
+  }
+  if (p.effectsSequence.length) {
+    container.addDynamicProperty(p);
+  }
+  return p;
+}
 
-  var ob = {
-    getProp: getProp,
-  };
-  return ob;
+const PropertyFactory = (function () {
+  return { getProp };
 }());
 
 export default PropertyFactory;

@@ -6,7 +6,6 @@ import {
 } from './common';
 import {
   createSizedArray,
-  createTypedArray,
 } from './helpers/arrays';
 import segmentsLengthPool from './pooling/segments_length_pool';
 import bezierLengthPool from './pooling/bezier_length_pool';
@@ -192,7 +191,7 @@ function bezFunction() {
     return [ptX, ptY];
   }
 
-  var bezierSegmentPoints = createTypedArray('float32', 8);
+  var bezierSegmentPoints = createSizedArray(8);
 
   function getNewSegment(pt1, pt2, pt3, pt4, startPerc, endPerc, bezierData) {
     if (startPerc < 0) {

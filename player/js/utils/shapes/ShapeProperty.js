@@ -112,7 +112,7 @@ const ShapePropertyFactory = (function () {
   }
 
   function resetShape() {
-    this.paths = this.localShapeCollection;
+    this.pathsData = [this.v];
   }
 
   function shapesEqual(shape1, shape2) {
@@ -137,10 +137,8 @@ const ShapePropertyFactory = (function () {
   function setVValue(newPath) {
     if (!shapesEqual(this.v, newPath)) {
       this.v = shapePool.clone(newPath);
-      this.localShapeCollection.releaseShapes();
-      this.localShapeCollection.addShape(this.v);
+      this.pathsData = [this.v];
       this._mdf = true;
-      this.paths = this.localShapeCollection;
     }
   }
 
@@ -186,10 +184,8 @@ const ShapePropertyFactory = (function () {
     this._mdf = false;
     var pathData = type === 3 ? data.pt.k : data.ks.k;
     this.v = shapePool.clone(pathData);
+    this.pathsData = [this.v];
     this.pv = shapePool.clone(this.v);
-    this.localShapeCollection = shapeCollectionPool.newShapeCollection();
-    this.paths = this.localShapeCollection;
-    this.paths.addShape(this.v);
     this.reset = resetShape;
     this.effectsSequence = [];
   }
@@ -218,9 +214,8 @@ const ShapePropertyFactory = (function () {
     this.v = shapePool.newElement();
     this.v.setPathData(this.keyframes[0].s[0].c, len);
     this.pv = shapePool.clone(this.v);
-    this.localShapeCollection = shapeCollectionPool.newShapeCollection();
-    this.paths = this.localShapeCollection;
-    this.paths.addShape(this.v);
+    this.pathData = this.v;
+    this.pathsData = [this.v];
     this.lastFrame = initFrame;
     this.reset = resetShape;
     this._caching = { lastFrame: initFrame, lastIndex: 0 };
@@ -237,9 +232,8 @@ const ShapePropertyFactory = (function () {
     function EllShapePropertyFactory(elem, data) {
       this.v = shapePool.newElement();
       this.v.setPathData(true, 4);
-      this.localShapeCollection = shapeCollectionPool.newShapeCollection();
-      this.paths = this.localShapeCollection;
-      this.localShapeCollection.addShape(this.v);
+      this.pathData = shapePool.clone(this.v);
+      this.pathsData = [this.v];
       this.d = data.d;
       this.elem = elem;
       this.comp = elem.comp;
@@ -329,93 +323,90 @@ const ShapePropertyFactory = (function () {
       this.r = PropertyFactory.getProp(elem, data.r, 0, degToRads, this);
       this.or = PropertyFactory.getProp(elem, data.or, 0, 0, this);
       this.os = PropertyFactory.getProp(elem, data.os, 0, 0.01, this);
-      this.localShapeCollection = shapeCollectionPool.newShapeCollection();
-      this.localShapeCollection.addShape(this.v);
-      this.paths = this.localShapeCollection;
-      if (this.dynamicProperties.length) {
-        this.k = true;
-      } else {
-        this.k = false;
-        this.convertToPath();
-      }
-    }
-
-    StarShapePropertyFactory.prototype = {
-      reset: resetShape,
-      getValue: function () {
-        if (this.elem.globalData.frameId === this.frameId) {
-          return;
-        }
-        this.frameId = this.elem.globalData.frameId;
-        this.iterateDynamicProperties();
-        if (this._mdf) {
+      this.pathData = shapePool.clone(this.v);
+      this.pathsData = [this.v];
+        if (this.dynamicProperties.length) {
+          this.k = true;
+        } else {
+          this.k = false;
           this.convertToPath();
         }
-      },
-      convertStarToPath: function () {
-        var numPts = Math.floor(this.pt.v) * 2;
-        var angle = (Math.PI * 2) / numPts;
-        /* this.v.v.length = numPts;
-                this.v.i.length = numPts;
-                this.v.o.length = numPts; */
-        var longFlag = true;
-        var longRad = this.or.v;
-        var shortRad = this.ir.v;
-        var longRound = this.os.v;
-        var shortRound = this.is.v;
-        var longPerimSegment = (2 * Math.PI * longRad) / (numPts * 2);
-        var shortPerimSegment = (2 * Math.PI * shortRad) / (numPts * 2);
-        var i;
-        var rad;
-        var roundness;
-        var perimSegment;
-        var currentAng = -Math.PI / 2;
-        currentAng += this.r.v;
-        var dir = this.data.d === 3 ? -1 : 1;
-        this.v._length = 0;
-        for (i = 0; i < numPts; i += 1) {
-          rad = longFlag ? longRad : shortRad;
-          roundness = longFlag ? longRound : shortRound;
-          perimSegment = longFlag ? longPerimSegment : shortPerimSegment;
-          var x = rad * Math.cos(currentAng);
-          var y = rad * Math.sin(currentAng);
-          var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
-          var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
-          x += +this.p.v[0];
-          y += +this.p.v[1];
-          this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
+      }
 
-          /* this.v.v[i] = [x,y];
-                    this.v.i[i] = [x+ox*perimSegment*roundness*dir,y+oy*perimSegment*roundness*dir];
-                    this.v.o[i] = [x-ox*perimSegment*roundness*dir,y-oy*perimSegment*roundness*dir];
-                    this.v._length = numPts; */
-          longFlag = !longFlag;
-          currentAng += angle * dir;
-        }
-      },
-      convertPolygonToPath: function () {
-        var numPts = Math.floor(this.pt.v);
-        var angle = (Math.PI * 2) / numPts;
-        var rad = this.or.v;
-        var roundness = this.os.v;
-        var perimSegment = (2 * Math.PI * rad) / (numPts * 4);
-        var i;
-        var currentAng = -Math.PI * 0.5;
-        var dir = this.data.d === 3 ? -1 : 1;
-        currentAng += this.r.v;
-        this.v._length = 0;
-        for (i = 0; i < numPts; i += 1) {
-          var x = rad * Math.cos(currentAng);
-          var y = rad * Math.sin(currentAng);
-          var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
-          var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
-          x += +this.p.v[0];
-          y += +this.p.v[1];
-          this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
-          currentAng += angle * dir;
-        }
-        this.paths.length = 0;
-        this.paths[0] = this.v;
+      StarShapePropertyFactory.prototype = {
+        reset: resetShape,
+        getValue: function () {
+          if (this.elem.globalData.frameId === this.frameId) {
+            return;
+          }
+          this.frameId = this.elem.globalData.frameId;
+          this.iterateDynamicProperties();
+          if (this._mdf) {
+            this.convertToPath();
+          }
+        },
+        convertStarToPath: function () {
+          var numPts = Math.floor(this.pt.v) * 2;
+          var angle = (Math.PI * 2) / numPts;
+          /* this.v.v.length = numPts;
+                  this.v.i.length = numPts;
+                  this.v.o.length = numPts; */
+          var longFlag = true;
+          var longRad = this.or.v;
+          var shortRad = this.ir.v;
+          var longRound = this.os.v;
+          var shortRound = this.is.v;
+          var longPerimSegment = (2 * Math.PI * longRad) / (numPts * 2);
+          var shortPerimSegment = (2 * Math.PI * shortRad) / (numPts * 2);
+          var i;
+          var rad;
+          var roundness;
+          var perimSegment;
+          var currentAng = -Math.PI / 2;
+          currentAng += this.r.v;
+          var dir = this.data.d === 3 ? -1 : 1;
+          this.v._length = 0;
+          for (i = 0; i < numPts; i += 1) {
+            rad = longFlag ? longRad : shortRad;
+            roundness = longFlag ? longRound : shortRound;
+            perimSegment = longFlag ? longPerimSegment : shortPerimSegment;
+            var x = rad * Math.cos(currentAng);
+            var y = rad * Math.sin(currentAng);
+            var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
+            var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
+            x += +this.p.v[0];
+            y += +this.p.v[1];
+            this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
+
+            /* this.v.v[i] = [x,y];
+                      this.v.i[i] = [x+ox*perimSegment*roundness*dir,y+oy*perimSegment*roundness*dir];
+                      this.v.o[i] = [x-ox*perimSegment*roundness*dir,y-oy*perimSegment*roundness*dir];
+                      this.v._length = numPts; */
+            longFlag = !longFlag;
+            currentAng += angle * dir;
+          }
+        },
+        convertPolygonToPath: function () {
+          var numPts = Math.floor(this.pt.v);
+          var angle = (Math.PI * 2) / numPts;
+          var rad = this.or.v;
+          var roundness = this.os.v;
+          var perimSegment = (2 * Math.PI * rad) / (numPts * 4);
+          var i;
+          var currentAng = -Math.PI * 0.5;
+          var dir = this.data.d === 3 ? -1 : 1;
+          currentAng += this.r.v;
+          this.v._length = 0;
+          for (i = 0; i < numPts; i += 1) {
+            var x = rad * Math.cos(currentAng);
+            var y = rad * Math.sin(currentAng);
+            var ox = x === 0 && y === 0 ? 0 : y / Math.sqrt(x * x + y * y);
+            var oy = x === 0 && y === 0 ? 0 : -x / Math.sqrt(x * x + y * y);
+            x += +this.p.v[0];
+            y += +this.p.v[1];
+            this.v.setTripleAt(x, y, x - ox * perimSegment * roundness * dir, y - oy * perimSegment * roundness * dir, x + ox * perimSegment * roundness * dir, y + oy * perimSegment * roundness * dir, i, true);
+            currentAng += angle * dir;
+          }
       },
 
     };
@@ -428,9 +419,8 @@ const ShapePropertyFactory = (function () {
     function RectShapePropertyFactory(elem, data) {
       this.v = shapePool.newElement();
       this.v.c = true;
-      this.localShapeCollection = shapeCollectionPool.newShapeCollection();
-      this.localShapeCollection.addShape(this.v);
-      this.paths = this.localShapeCollection;
+      this.pathData = shapePool.clone(this.v);
+      this.pathsData = [this.v];
       this.elem = elem;
       this.comp = elem.comp;
       this.frameId = -1;

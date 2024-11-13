@@ -94,27 +94,40 @@ BaseRenderer.prototype.initItems = function () {
     this.buildAllItems();
   }
 };
+
 BaseRenderer.prototype.buildElementParenting = function (element, parentName, hierarchy) {
+  var cache = this._parentCache;
+  if (!cache) {
+    cache = this._parentCache = new Map();
+  }
+  let i = cache.get(parentName);
   var elements = this.elements;
   var layers = this.layers;
-  var i = 0;
-  var len = layers.length;
-  while (i < len) {
-    if (layers[i].ind == parentName) { // eslint-disable-line eqeqeq
-      if (!elements[i] || elements[i] === true) {
-        this.buildItem(i);
-        this.addPendingElement(element);
-      } else {
-        hierarchy.push(elements[i]);
-        elements[i].setAsParent();
-        if (layers[i].parent !== undefined) {
-          this.buildElementParenting(element, layers[i].parent, hierarchy);
-        } else {
-          element.setHierarchy(hierarchy);
-        }
+  if (i === undefined) {
+    for (i = 0; i < layers.length; i++) {
+      if (layers[i].ind == parentName) {// eslint-disable-line eqeqeq
+        break;
       }
     }
-    i += 1;
+
+    if (i >= layers.length) {
+      return;
+    }
+
+    cache.set(parentName, i);
+  }
+
+  if (!elements[i] || elements[i] === true) {
+    this.buildItem(i);
+    this.addPendingElement(element);
+  } else {
+    hierarchy.push(elements[i]);
+    elements[i].setAsParent();
+    if (layers[i].parent !== undefined) {
+      this.buildElementParenting(element, layers[i].parent, hierarchy);
+    } else {
+      element.setHierarchy(hierarchy);
+    }
   }
 };
 
