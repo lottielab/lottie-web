@@ -9,7 +9,7 @@
   },
   "sideEffects": false,
   "scripts": {
-    "build": "npx eslint ./player/js/**/* && rollup -c && node tasks/build_worker",
+    "build": "rollup -c && node tasks/build_worker",
     "build_test": "node tasks/build.js",
     "lint": "npx eslint ./player/js/**/*",
     "lint:fix": "npx eslint ./player/js/**/* --fix",
